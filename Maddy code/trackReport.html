@@ -66,7 +66,7 @@
           <h1 class="text-primary">Track Your Report</h1>
           <p>Enter your Reference ID to track its status.</p>
           <!-- !Tracking Form -->
-          <form action="">
+          <form id="track-form" novalidate>
             <div class="mb-3">
               <label for="reportId" class="form-label"><strong>Reference ID</strong></label>
               <input
@@ -76,12 +76,22 @@
                 id="reportId"
                 placeholder="Enter your report ID"
                 required
+                aria-describedby="reportIdHint reportIdError"
+                aria-invalid="false"
               />
-              <p class="hint text-secondary">E.g. Z123456</p>
+              <p class="hint text-secondary" id="reportIdHint">E.g. Z123456</p>
+              <p
+                id="reportIdError"
+                class="text-danger small mt-1 mb-0"
+                style="display: none"
+                role="alert"
+              >
+                Please enter a valid Reference ID (format: Z123456).
+              </p>
             </div>
 
             <!-- button -->
-            <button class="btn btn-primary mt-3" onclick="location.href='reportStatus.html'">Track Report</button>
+            <button type="submit" class="btn btn-primary mt-3">Track Report</button>
             <br>
             <h6 class="text-center">Don't have your reference ID?</h6>
             <a href="" class="text-center">Contact support</a>
@@ -114,5 +124,35 @@
         &copy; 2026 Fix It. All rights reserved.
       </div>
     </footer>
+    <script>
+      const trackForm = document.getElementById("track-form");
+      const reportIdInput = document.getElementById("reportId");
+      const reportIdError = document.getElementById("reportIdError");
+      const refPattern = /^Z\d{6}$/i;
+
+      function showRefError(show) {
+        reportIdError.style.display = show ? "block" : "none";
+        reportIdInput.classList.toggle("is-invalid", show);
+        reportIdInput.setAttribute("aria-invalid", show ? "true" : "false");
+      }
+
+      reportIdInput.addEventListener("input", function () {
+        showRefError(false);
+      });
+
+      trackForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const value = reportIdInput.value.trim();
+
+        if (!refPattern.test(value)) {
+          showRefError(true);
+          reportIdInput.focus();
+          return;
+        }
+
+        localStorage.setItem("trackReferenceId", value.toUpperCase());
+        window.location.href = "reportStatus.html";
+      });
+    </script>
   </body>
 </html>
